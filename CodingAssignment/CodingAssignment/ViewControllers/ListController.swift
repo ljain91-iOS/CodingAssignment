@@ -35,7 +35,6 @@ class ListController: UIViewController {
     safeArea = view.safeAreaLayoutGuide
     
     // Set up all the views programmatically
-    setUpNavigationBar(title: "")
     setUpTableView()
     setUpActivityIndicator()
     setUpNoRecordLabel()
@@ -117,6 +116,7 @@ extension ListController {
     // Get MainThread to Update UI elements
     DispatchQueue.main.async { [weak self] in
       guard let self = self else { return }
+      
       self.refreshControl.endRefreshing()
       self.activityIndicator.isHidden = true
       self.activityIndicator.stopAnimating()
