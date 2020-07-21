@@ -21,6 +21,8 @@ struct Constants {
   static let kError = "Error"
   static let kErrorFetchList = "Something went wrong while fetching the list."
   static let kOk = "OK"
+  static let kNetworkChangeIdentifier = "NetworkChange"
+  static let KNoNetwork = "No Network Connection!"
 }
 
 struct ScreenSize {
