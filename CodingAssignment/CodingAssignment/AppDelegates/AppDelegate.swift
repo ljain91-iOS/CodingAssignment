@@ -15,6 +15,9 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
   
   func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
     
+    // Setup reachability
+    ReachabilityManager.sharedManager.setupReachability()
+    
     // Check iOS before configuring UIWindow
     if #available(iOS 13.0, *) {
       // Set rootViewController in SceneDelegate
