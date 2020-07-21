@@ -20,6 +20,7 @@
 		24EEB43424C70F1800549483 /* ReachabilityManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 24EEB43324C70F1800549483 /* ReachabilityManager.swift */; };
 		24EEB43624C70F2E00549483 /* WebServices.swift in Sources */ = {isa = PBXBuildFile; fileRef = 24EEB43524C70F2E00549483 /* WebServices.swift */; };
 		24EEB43824C70F3C00549483 /* HTTPLayer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 24EEB43724C70F3C00549483 /* HTTPLayer.swift */; };
+		24EEB43A24C717C400549483 /* ListDetailModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 24EEB43924C717C400549483 /* ListDetailModel.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -50,6 +51,7 @@
 		24EEB43324C70F1800549483 /* ReachabilityManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReachabilityManager.swift; sourceTree = "<group>"; };
 		24EEB43524C70F2E00549483 /* WebServices.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WebServices.swift; sourceTree = "<group>"; };
 		24EEB43724C70F3C00549483 /* HTTPLayer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HTTPLayer.swift; sourceTree = "<group>"; };
+		24EEB43924C717C400549483 /* ListDetailModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ListDetailModel.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -144,6 +146,7 @@
 			isa = PBXGroup;
 			children = (
 				24EEB42F24C70EE700549483 /* ListModel.swift */,
+				24EEB43924C717C400549483 /* ListDetailModel.swift */,
 			);
 			path = Models;
 			sourceTree = "<group>";
@@ -285,6 +288,7 @@
 				24EEB42524C70C6000549483 /* AppDelegate.swift in Sources */,
 				24EEB42624C70C6000549483 /* SceneDelegate.swift in Sources */,
 				24EEB43224C70EF800549483 /* ListViewModel.swift in Sources */,
+				24EEB43A24C717C400549483 /* ListDetailModel.swift in Sources */,
 				24EEB42724C70C6000549483 /* ListController.swift in Sources */,
 				24EEB43024C70EE700549483 /* ListModel.swift in Sources */,
 				24EEB42E24C70ED300549483 /* ListCell.swift in Sources */,
