@@ -18,6 +18,9 @@ struct Constants {
   
   static let kAppName = "Coding Assignment"
   static let kNoRecordsFound = "No Records Found"
+  static let kError = "Error"
+  static let kErrorFetchList = "Something went wrong while fetching the list."
+  static let kOk = "OK"
 }
 
 struct ScreenSize {

@@ -10,10 +10,12 @@ import UIKit
 
 class ListController: UIViewController {
   
+  private let viewModel = ListViewModel()
   private let listTableView = UITableView()
   private var activityIndicator = UIActivityIndicatorView()
   private let noRecordLabel = UILabel(frame: .zero)
   var safeArea: UILayoutGuide!
+  private let refreshControl = UIRefreshControl()
   private let cellIdentifier = "ListCellIdentifier"
   
   override func viewDidLoad() {
@@ -28,6 +30,69 @@ class ListController: UIViewController {
     setUpTableView()
     setUpActivityIndicator()
     setUpNoRecordLabel()
+    
+    // Call API
+    callGetListAPI()
+  }
+  
+  // MARK: - Pull to Refresh Method
+  @objc func pullToRefresh(_ sender: UIRefreshControl) {
+    refreshControl.beginRefreshing()
+    
+    // Pass sender for hiding ActivityIndicator when called from RefreshControl
+    callGetListAPI(refreshControl: sender)
+  }
+}
+
+// MARK: - API Method
+extension ListController {
+  func callGetListAPI (refreshControl: UIRefreshControl? = nil) {
+    // If called from Refresh Control then don't show ActivityIndicator
+    if refreshControl == nil {
+      activityIndicator.isHidden = false
+      activityIndicator.startAnimating()
+    }
+    
+    // Background call for GetList API
+    DispatchQueue.global(qos: .background).async { [weak self] in
+      guard let self = self else { return }
+      self.viewModel.getList(completion: { (error) in
+        // Populate UI as per API Response
+        self.gotListData(error: error)
+      })
+    }
+  }
+}
+
+// MARK: - API Response Handling Method
+extension ListController {
+  func gotListData(error: NSError?) {
+    // Get MainThread to Update UI elements
+    DispatchQueue.main.async { [weak self] in
+      guard let self = self else { return }
+      self.refreshControl.endRefreshing()
+      self.activityIndicator.isHidden = true
+      self.activityIndicator.stopAnimating()
+      
+      // If listData nil then show Alert
+      if let listData = self.viewModel.listData {
+        self.setUpNavigationBar(title: listData.title)
+        self.noRecordLabel.isHidden = true
+        self.listTableView.reloadData()
+        if listData.rows.count == 0 {
+          self.noRecordLabel.isHidden = false
+        }
+      } else {
+        // Show Error alert
+        let alertMsg = error != nil ? error!.localizedDescription : Constants.kErrorFetchList
+        let alertVC = UIAlertController(title: Constants.kError, message: alertMsg, preferredStyle: .alert)
+        alertVC.addAction(UIAlertAction(title: Constants.kOk, style: .default, handler: nil))
+        self.navigationController?.present(alertVC, animated: true, completion: nil)
+        self.noRecordLabel.isHidden = false
+        self.setUpNavigationBar(title: "")
+        self.listTableView.reloadData()
+      }
+    }
   }
 }
 
@@ -45,6 +110,8 @@ extension ListController {
     listTableView.dataSource = self
     listTableView.tableFooterView = UIView(frame: .zero)
     listTableView.estimatedRowHeight = 120
+    listTableView.refreshControl = refreshControl
+    refreshControl.addTarget(self, action: #selector(pullToRefresh(_:)), for: .valueChanged)
     view.addSubview(listTableView)
     listTableView.translatesAutoresizingMaskIntoConstraints = false
     
@@ -98,14 +165,18 @@ extension ListController: UITableViewDelegate {
 // MARK: - UITableViewDataSource
 extension ListController: UITableViewDataSource {
   func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-    return 1
+    return viewModel.listData?.rows.count ?? 0
   }
   
   func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
     guard let cell = tableView.dequeueReusableCell(withIdentifier: cellIdentifier) as? ListCell else {
       return UITableViewCell()
     }
+    guard let listModel = viewModel.listData?.rows[indexPath.row] else {
+      return UITableViewCell()
+    }
     cell.tag = indexPath.row
+    cell.configureCellElements(with: listModel, networkingClient:viewModel.networking, row: indexPath.row)
     cell.selectionStyle = .none
     
     return cell
