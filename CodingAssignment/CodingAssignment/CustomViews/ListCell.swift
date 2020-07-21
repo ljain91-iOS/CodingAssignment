@@ -13,6 +13,7 @@ class ListCell: UITableViewCell {
   var titleLabel = UILabel(frame: .zero)
   var descriptionLabel = UILabel(frame: .zero)
   var listImageView = UIImageView(image: UIImage(named: "no-photo"))
+  var minHeight: CGFloat?
   
   // Set Image Height and Width as per screen size
   private var imageHeightConstant: CGFloat {
@@ -23,6 +24,19 @@ class ListCell: UITableViewCell {
     }
   }
   
+  // Override func for setting minimum height to avoid content overlapping
+  override func systemLayoutSizeFitting(_ targetSize: CGSize, withHorizontalFittingPriority horizontalFittingPriority: UILayoutPriority, verticalFittingPriority: UILayoutPriority) -> CGSize {
+    let size = super.systemLayoutSizeFitting(targetSize, withHorizontalFittingPriority: horizontalFittingPriority, verticalFittingPriority: verticalFittingPriority)
+    guard let minHeight = minHeight else { return size }
+    return CGSize(width: size.width, height: max(size.height, minHeight))
+  }
+  
+  // Code Cleanup for cell reuse
+  override func prepareForReuse() {
+    listImageView.image = UIImage(named: "no-photo")
+    titleLabel.text = ""
+    descriptionLabel.text = ""
+  }
 }
 
 // MARK: - UITableViewCell UI Configuration Methods
@@ -43,6 +57,27 @@ extension ListCell {
   private func setupListImageView(imageString: String, networkingClient: WebServices, row: Int) {
     listImageView.image = UIImage(named: "no-photo")
     listImageView.translatesAutoresizingMaskIntoConstraints = false
+    
+    // Download image only if imageHref is not empty
+    if imageString != "" {
+      // Download image here
+      // Create background thread to download image
+      DispatchQueue.global(qos: .background).async { [weak self] in
+        guard let self = self else { return }
+        self.downloadImage(urlString: imageString, networking: networkingClient) {[weak self] (image) in
+          guard let self = self else { return }
+          
+          // Get Main thread to update UI
+          DispatchQueue.main.async {
+            // Check if cell is relevant to assign downloaded image
+            if self.tag == row {
+              self.listImageView.image = image
+            }
+          }
+        }
+      }
+    }
+    
     self.addSubview(listImageView)
     
     // ListImageView Constraints
@@ -88,5 +123,23 @@ extension ListCell {
     descriptionLabel.bottomAnchor.constraint(equalTo: self.bottomAnchor, constant: -5).isActive = true
     descriptionLabel.leadingAnchor.constraint(equalTo: titleLabel.leadingAnchor).isActive = true
     descriptionLabel.trailingAnchor.constraint(equalTo: titleLabel.trailingAnchor).isActive = true
+  }
+}
+
+// MARK: - Download Image Method
+extension ListCell {
+  func downloadImage(urlString: String, networking: WebServices, completion: @escaping (UIImage)-> Void){
+    networking.downloadImage(from: urlString) { (result) in
+      switch result{
+      case .failure(let error):
+        print(error)
+      case .success(let imageData):
+        if let image = UIImage(data: imageData){
+          completion(image)
+        }else{
+          completion(UIImage())
+        }
+      }
+    }
   }
 }

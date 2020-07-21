@@ -18,6 +18,15 @@ class ListController: UIViewController {
   private let refreshControl = UIRefreshControl()
   private let cellIdentifier = "ListCellIdentifier"
   
+  // Cell minimum height as per device
+  private var cellMinimumHeight: CGFloat {
+    if DeviceType.iPhone {
+      return 70
+    } else {
+      return 80
+    }
+  }
+  
   override func viewDidLoad() {
     super.viewDidLoad()
     view.backgroundColor = .white
@@ -178,6 +187,9 @@ extension ListController: UITableViewDataSource {
     cell.tag = indexPath.row
     cell.configureCellElements(with: listModel, networkingClient:viewModel.networking, row: indexPath.row)
     cell.selectionStyle = .none
+    
+    // Set minimum height for cell
+    cell.minHeight = cellMinimumHeight
     
     return cell
   }
