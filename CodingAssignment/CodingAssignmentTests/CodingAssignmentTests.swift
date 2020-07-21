@@ -11,10 +11,59 @@ import XCTest
 
 class CodingAssignmentTests: XCTestCase {
   
+  let httpLayer = HTTPLayer()
+  var networking: WebServices!
+  
   override func setUp() {
+    super.setUp()
+    networking = WebServices(httpLayer: httpLayer)
   }
   
   override func tearDown() {
+    networking = nil
+    super.tearDown()
+  }
+  
+  // MARK: - Test FetchList API Methods
+  func testApiCallToFetchList() {
+    // Creating the expectation to see if API gives status code 200
+    let promise = expectation(description: "Status code: 200")
+    
+    // Fetch List API Call
+    self.httpLayer.request(at: .fetchList) { (data, response, error) in
+      if let error = error {
+        XCTFail("Error: \(error.localizedDescription)")
+        return
+      } else if let statusCode = (response as? HTTPURLResponse)?.statusCode {
+        if statusCode == 200 {
+          promise.fulfill()
+        } else {
+          XCTFail("Status code: \(statusCode)")
+        }
+      }
+    }
+    wait(for: [promise], timeout: 10)
+  }
+  
+  // Test if API decodes the data correctly
+  func testIfDataInCorrectUtf8() {
+    let expectationForDecoder = expectation(description: "Status code: 200")
+    httpLayer.request(at: .fetchList) { (data, response, error) in
+      if let error = error {
+        XCTFail("Error: \(error.localizedDescription)")
+        return
+      } else if let data = data {
+        do{
+          let decoder = JSONDecoder()
+          let list = try decoder.decode(ListModel.self, from: data)
+          XCTAssertNotNil(list, "Did not receive list")
+          expectationForDecoder.fulfill()
+        }catch let error {
+          XCTFail("Error: \(error.localizedDescription)")
+        }
+      }
+    }
+    wait(for: [expectationForDecoder], timeout: 10.0)
   }
   
   // MARK: - Test ListModel Decoder Method
